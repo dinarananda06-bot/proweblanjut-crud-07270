@@ -27,6 +27,7 @@ class AuthController {
                 $userModel = new User();
                 $user = $userModel->getByUsername($username_input);
 
+                // Verifikasi password yang diinput dengan hash yang ada di database
                 if ($user && password_verify($password_input, $user['password'])) {
                     $_SESSION['user_id']  = $user['id'];
                     $_SESSION['username'] = $user['username'];
@@ -35,7 +36,7 @@ class AuthController {
                     if ($remember_me) {
                         $token = bin2hex(random_bytes(32));
                         $userModel->updateRememberToken($user['id'], $token);
-                        setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/');
+                        setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/'); // 30 hari
                     }
 
                     $_SESSION['pesan'] = "Selamat datang, <strong>" . htmlspecialchars($user['nama']) . "</strong>!";
@@ -86,6 +87,7 @@ class AuthController {
                 if ($userModel->checkUsernameExists($username_input)) {
                     $error = "Username <strong>$username_input</strong> sudah digunakan, pilih username lain!";
                 } else {
+                    // Panggil create() yang sudah mengimplementasikan password_hash()
                     if ($userModel->create($nama, $username_input, $password_input)) {
                         $success = "Akun berhasil dibuat! Silakan login.";
                     } else {
